@@ -1,4 +1,3 @@
-import unittest
 import csv
 import os
 
@@ -64,7 +63,7 @@ def get_user_number(n):
         a = input("Ввод(0-вернуться/выйти): ")
         try:
             a = int(a)
-        except TypeError:
+        except ValueError:
             print("Попробуйте снова, это не число")
         else:
             if 0 <= a <= n:
@@ -114,7 +113,7 @@ def main():
         elif user_input == 3:
             transpose()
         elif user_input == 4:
-            print(calculate_mathematical_expression().matrix)
+            calculate_mathematical_expression()
         elif user_input == 5:
             print(find_determinant())
 
@@ -137,6 +136,21 @@ def transpose():
 def calculate_mathematical_expression():
     global matrix_list, temp_matrix_list
 
+    def brackets_remover(exp):
+        bracket_count = 0
+        for i, e in enumerate(exp):
+            if e == "(":
+                bracket_count += 1
+            elif e == ")":
+                bracket_count -= 1
+                if not bracket_count:
+                    if exp[0] == "(" and i == len(exp) - 1 and "+" not in exp and "*" not in exp:
+                        exp = exp[1:-1]
+                    else:
+                        break
+
+        return exp
+
     def get_matrix_from_name(name):
         for i, e in enumerate(matrix_list):
             if e.name == name:
@@ -155,6 +169,9 @@ def calculate_mathematical_expression():
             a = calculate_it(a)
         if "(" in b:
             b = calculate_it(b)
+
+        a = brackets_remover(a)
+        b = brackets_remover(b)
         new_matrix = []
 
         if check_type(a):
@@ -200,6 +217,17 @@ def calculate_mathematical_expression():
         return "Temp"+str(temp_counter-1)
 
     def plus_mat(a, b):
+        a = a.strip()
+        b = b.strip()
+        global temp_matrix_list, temp_counter
+        if "(" in a:
+            a = calculate_it(a)
+        if "(" in b:
+            b = calculate_it(b)
+
+        a = brackets_remover(a)
+        b = brackets_remover(b)
+
         a = get_matrix_from_name(a)
         b = get_matrix_from_name(b)
         if a is None or b is None:
@@ -212,45 +240,50 @@ def calculate_mathematical_expression():
             new_matrix.append([])
             for j in range(a.columns):
                 new_matrix[-1].append(a.matrix[i][j] + b.matrix[i][j])
-        return new_matrix
+
+        temp_matrix_list.append(Matrix("Temp" + str(temp_counter), new_matrix))
+        temp_counter += 1
+
+        return "Temp" + str(temp_counter - 1)
 
     def calculate_it(expr):
-        bracket_count = 0
-        for i, e in enumerate(expr):
-            if e == "(":
-                bracket_count += 1
-            elif e == ")":
-                bracket_count -= 1
-                if not bracket_count:
-                    if expr[0] == "(" and i == len(expr) - 1:
-                        expr = expr[1:-1]
-                    else:
-                        break
+        expr = brackets_remover(expr)
 
         while "*" in expr:
             for i, e in enumerate(expr):
                 if e == "*":
                     value1, value2 = "", ""
-                    is_in_brackets = False
-                    for j in range(i-1, 0, -1):
+                    is_in_brackets = 0
+                    for j in range(i-1, -1, -1):
                         if expr[j] == ")":
-                            is_in_brackets = True
+                            is_in_brackets += 1
                         if expr[j] == "(":
-                            value1 = expr[j + 1:i]
-                            break
+                            is_in_brackets -= 1
+                            if is_in_brackets == 0:
+                                value1 = expr[j:i]
+                                break
+                            elif is_in_brackets == -1:
+                                value1 = expr[j+1:i]
+                                break
+
                         if (expr[j] == "+" or expr[j] == "-" or expr[j] == "*") and not is_in_brackets:
                             value1 = expr[j+1:i]
                             break
                     else:
                         value1 = expr[0:i]
 
-                    is_in_brackets = False
+                    is_in_brackets = 0
                     for j in range(i+1, len(expr)):
                         if expr[j] == "(":
-                            is_in_brackets = True
+                            is_in_brackets += 1
                         if expr[j] == ")":
-                            value2 = expr[i+1:j+1]
-                            break
+                            is_in_brackets -= 1
+                            if is_in_brackets == 0:
+                                value2 = expr[i+1:j+1]
+                                break
+                            elif is_in_brackets == -1:
+                                value2 = expr[i+1:j]
+                                break
                         if (expr[j] == "+" or expr[j] == "-" or expr[j] == "*") and not is_in_brackets:
                             value2 = expr[i+1:j]
                             break
@@ -266,13 +299,18 @@ def calculate_mathematical_expression():
             for i, e in enumerate(expr):
                 if e == "+":
                     value1, value2 = "", ""
-                    is_in_brackets = False
-                    for j in range(i - 1, 0, -1):
+                    is_in_brackets = 0
+                    for j in range(i - 1, -1, -1):
                         if expr[j] == ")":
-                            is_in_brackets = True
+                            is_in_brackets += 1
                         if expr[j] == "(":
-                            value1 = expr[j + 1:i]
-                            break
+                            is_in_brackets -= 1
+                            if is_in_brackets == 0:
+                                value1 = expr[j:i]
+                                break
+                            elif is_in_brackets == -1:
+                                value1 = expr[j + 1:i]
+                                break
                         if (expr[j] == "+" or expr[j] == "-") and not is_in_brackets:
                             value1 = expr[j + 1:i]
                             break
@@ -282,16 +320,21 @@ def calculate_mathematical_expression():
                     is_in_brackets = False
                     for j in range(i + 1, len(expr)):
                         if expr[j] == "(":
-                            is_in_brackets = True
+                            is_in_brackets += 1
                         if expr[j] == ")":
-                            value2 = expr[i + 1:j + 1]
-                            break
+                            is_in_brackets -= 1
+                            if is_in_brackets == 0:
+                                value2 = expr[i + 1:j + 1]
+                                break
+                            elif is_in_brackets == -1:
+                                value2 = expr[i + 1:j]
+                                break
                         if (expr[j] == "+" or expr[j] == "-") and not is_in_brackets:
                             value2 = expr[i + 1:j]
                             break
                     else:
                         value2 = expr[i + 1:]
-                    ed = mult_mat(value1, value2)
+                    ed = plus_mat(value1, value2)
                     if not ed:
                         return None
                     expr = expr.replace(value1 + "+" + value2, ed)
@@ -302,6 +345,7 @@ def calculate_mathematical_expression():
     print("Введите выражение, которое хотите посчитать")
     expression = input().replace(" ", "")
     mas_chis = []
+    temp_matrix_list = []
     temp1 = None
     for i, e in enumerate(expression):
         if e.isdigit() or e == "." or e == "j":
@@ -323,7 +367,13 @@ def calculate_mathematical_expression():
     new_expression += expression[pr_end:]
     expression = new_expression
 
-    return get_matrix_from_name(calculate_it(expression))
+    temp = get_matrix_from_name(calculate_it(expression))
+
+    if temp is None:
+        print("Something gone wrong")
+    else:
+        temp.print_it()
+    return
 
 
 def find_determinant():
@@ -400,7 +450,7 @@ def read_matrix():
             return None
 
         name = get_matrix_name()
-        return Matrix(name, matrix_templates[a])
+        return Matrix(name, matrix_templates[a-1])
 
     def get_matrix_from_csv():
         print("Выберите .csv файл(разделитель: ','):")

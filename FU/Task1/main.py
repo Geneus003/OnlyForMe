@@ -31,6 +31,9 @@ class Matrix:
         self.matrix = new_matrix
         self.rows, self.columns = self.columns, self.rows
 
+    def find_det(self):
+        pass
+
 
 def check_type(a):
     def is_float(potential_float):
@@ -40,7 +43,11 @@ def check_type(a):
             return False
         return True
 
-    a = a.replace(" ", "")
+    try:
+        a = a.replace(" ", "")
+    except AttributeError:
+        pass
+
     try:
         if a.isdigit():
             a = int(a)
@@ -49,6 +56,8 @@ def check_type(a):
         else:
             a = complex(a)
     except ValueError:
+        return None
+    except AttributeError:
         return None
     return a
 
@@ -96,8 +105,8 @@ def main():
 
     while True:
         print("Выберите действие: \n1) Ввести матрицу \n2) Показать матрицы \n3) Транспонировать матрицу"
-              "\n4) Посчитать выражение")
-        user_input = get_user_number(4)
+              "\n4) Посчитать выражение\n5) Найти определитель")
+        user_input = get_user_number(5)
 
         if user_input == 0:
             break
@@ -109,6 +118,8 @@ def main():
             transpose()
         elif user_input == 4:
             print(calculate_mathematical_expression().matrix)
+        elif user_input == 5:
+            
 
     input("Введите что-нибудь для выхода")
 
@@ -140,13 +151,13 @@ def calculate_mathematical_expression():
         return None
 
     def mult_mat(a, b):
-        global temp_matrix_list, temp_counter
-        if "(" in a:
-            calculate_it(a)
-        if "(" in b:
-            calculate_it(b)
         a = a.strip()
         b = b.strip()
+        global temp_matrix_list, temp_counter
+        if "(" in a:
+            a = calculate_it(a)
+        if "(" in b:
+            b = calculate_it(b)
         new_matrix = []
 
         if check_type(a):
@@ -214,25 +225,36 @@ def calculate_mathematical_expression():
             elif e == ")":
                 bracket_count -= 1
                 if not bracket_count:
-                    if i == len(expr) - 1:
+                    if expr[0] == "(" and i == len(expr) - 1:
                         expr = expr[1:-1]
                     else:
                         break
 
         while "*" in expr:
-            print(expr)
             for i, e in enumerate(expr):
                 if e == "*":
                     value1, value2 = "", ""
+                    is_in_brackets = False
                     for j in range(i-1, 0, -1):
-                        if expr[j] == "+" or expr[j] == "-" or expr[j] == "*":
+                        if expr[j] == ")":
+                            is_in_brackets = True
+                        if expr[j] == "(":
+                            value1 = expr[j + 1:i]
+                            break
+                        if (expr[j] == "+" or expr[j] == "-" or expr[j] == "*") and not is_in_brackets:
                             value1 = expr[j+1:i]
                             break
                     else:
                         value1 = expr[0:i]
 
+                    is_in_brackets = False
                     for j in range(i+1, len(expr)):
-                        if expr[j] == "+" or expr[j] == "-" or expr[j] == "*":
+                        if expr[j] == "(":
+                            is_in_brackets = True
+                        if expr[j] == ")":
+                            value2 = expr[i+1:j+1]
+                            break
+                        if (expr[j] == "+" or expr[j] == "-" or expr[j] == "*") and not is_in_brackets:
                             value2 = expr[i+1:j]
                             break
                     else:
@@ -240,37 +262,45 @@ def calculate_mathematical_expression():
                     ed = mult_mat(value1, value2)
                     if not ed:
                         return None
-                    print(value1, value2)
                     expr = expr.replace(value1+"*"+value2, ed)
-                    print(expr)
                     break
 
         while "+" in expr:
             for i, e in enumerate(expr):
                 if e == "+":
                     value1, value2 = "", ""
-                    for j in range(i-1, 0, -1):
-                        if expr[j] == "+" or expr[j] == "-":
-                            value1 = expr[j+1:i]
+                    is_in_brackets = False
+                    for j in range(i - 1, 0, -1):
+                        if expr[j] == ")":
+                            is_in_brackets = True
+                        if expr[j] == "(":
+                            value1 = expr[j + 1:i]
+                            break
+                        if (expr[j] == "+" or expr[j] == "-") and not is_in_brackets:
+                            value1 = expr[j + 1:i]
                             break
                     else:
                         value1 = expr[0:i]
 
-                    for j in range(i+1, len(expr)):
-                        if expr[j] == "+" or expr[j] == "-":
-                            value2 = expr[i+1:j]
+                    is_in_brackets = False
+                    for j in range(i + 1, len(expr)):
+                        if expr[j] == "(":
+                            is_in_brackets = True
+                        if expr[j] == ")":
+                            value2 = expr[i + 1:j + 1]
+                            break
+                        if (expr[j] == "+" or expr[j] == "-") and not is_in_brackets:
+                            value2 = expr[i + 1:j]
                             break
                     else:
-                        value2 = expr[i+1:]
+                        value2 = expr[i + 1:]
+                    ed = mult_mat(value1, value2)
+                    if not ed:
+                        return None
+                    expr = expr.replace(value1 + "+" + value2, ed)
+                    break
 
-                    print(value1, value2)
-                    print(plus_mat(value1, value2))
-            break
-
-        temp = get_matrix_from_name(expr)
-        if temp is None:
-            return None
-        return temp
+        return expr
 
     print("Введите выражение, которое хотите посчитать")
     expression = input().replace(" ", "")
@@ -296,9 +326,7 @@ def calculate_mathematical_expression():
     new_expression += expression[pr_end:]
     expression = new_expression
 
-    print(expression)
-
-    return calculate_it(expression)
+    return get_matrix_from_name(calculate_it(expression))
 
 
 def read_matrix():

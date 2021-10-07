@@ -1,10 +1,11 @@
 import unittest
-import numpy
 import csv
 import os
 
 
 matrix_list = []
+temp_matrix_list = []
+temp_counter = 1
 
 
 class Matrix:
@@ -107,7 +108,7 @@ def main():
         elif user_input == 3:
             transpose()
         elif user_input == 4:
-            calculate_mathematical_expression()
+            print(calculate_mathematical_expression().matrix)
 
     input("Введите что-нибудь для выхода")
 
@@ -126,16 +127,24 @@ def transpose():
 
 
 def calculate_mathematical_expression():
-    temp_matrix = []
-    temp_counter = 1
+    global matrix_list, temp_matrix_list
 
     def get_matrix_from_name(name):
         for i, e in enumerate(matrix_list):
             if e.name == name:
                 return matrix_list[i]
+
+        for i, e in enumerate(temp_matrix_list):
+            if e.name == name:
+                return temp_matrix_list[i]
         return None
 
     def mult_mat(a, b):
+        global temp_matrix_list, temp_counter
+        if "(" in a:
+            calculate_it(a)
+        if "(" in b:
+            calculate_it(b)
         a = a.strip()
         b = b.strip()
         new_matrix = []
@@ -177,7 +186,10 @@ def calculate_mathematical_expression():
                         s += a.matrix[i][k] * b.matrix[k][j]
                     new_matrix[-1].append(s)
 
-        return new_matrix
+        temp_matrix_list.append(Matrix("Temp"+str(temp_counter), new_matrix))
+        temp_counter += 1
+
+        return "Temp"+str(temp_counter-1)
 
     def plus_mat(a, b):
         a = get_matrix_from_name(a)
@@ -195,7 +207,20 @@ def calculate_mathematical_expression():
         return new_matrix
 
     def calculate_it(expr):
+        bracket_count = 0
+        for i, e in enumerate(expr):
+            if e == "(":
+                bracket_count += 1
+            elif e == ")":
+                bracket_count -= 1
+                if not bracket_count:
+                    if i == len(expr) - 1:
+                        expr = expr[1:-1]
+                    else:
+                        break
+
         while "*" in expr:
+            print(expr)
             for i, e in enumerate(expr):
                 if e == "*":
                     value1, value2 = "", ""
@@ -212,10 +237,13 @@ def calculate_mathematical_expression():
                             break
                     else:
                         value2 = expr[i+1:]
-
+                    ed = mult_mat(value1, value2)
+                    if not ed:
+                        return None
                     print(value1, value2)
-                    print(mult_mat(value1, value2))
-            break
+                    expr = expr.replace(value1+"*"+value2, ed)
+                    print(expr)
+                    break
 
         while "+" in expr:
             for i, e in enumerate(expr):
@@ -238,6 +266,11 @@ def calculate_mathematical_expression():
                     print(value1, value2)
                     print(plus_mat(value1, value2))
             break
+
+        temp = get_matrix_from_name(expr)
+        if temp is None:
+            return None
+        return temp
 
     print("Введите выражение, которое хотите посчитать")
     expression = input().replace(" ", "")
@@ -265,7 +298,7 @@ def calculate_mathematical_expression():
 
     print(expression)
 
-    calculate_it(expression)
+    return calculate_it(expression)
 
 
 def read_matrix():

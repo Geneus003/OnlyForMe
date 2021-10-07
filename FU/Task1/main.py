@@ -514,8 +514,8 @@ def show_matrix():
 
 
 if __name__ == "__main__":
-    matrix_list.append(Matrix("Test1", [[2, 0, -1], [0, -2, 2]]))
-    matrix_list.append(Matrix("Test2", [[4.3, 1, 0], [3, 2.7, 1], [6.7, 1, 7.8]]))
-    matrix_list.append(Matrix("Test3", [[3, 0, 7], [13, -12, 11], [10, -9, 10]]))
-    matrix_list.append(Matrix("Test4", [[2, 3, 0, 5], [4, -3, -1, 1], [2, 5, 1, 3], [2, 7, 2, -2]]))
+    matrix_list.append(Matrix("TestA", [[2, 0, -1], [0, -2, 2]]))
+    matrix_list.append(Matrix("TestB", [[4.3, 1, 0], [3, 2.7, 1], [6.7, 1, 7.8]]))
+    matrix_list.append(Matrix("TestC", [[3, 0, 7], [13, -12, 11], [10, -9, 10]]))
+    matrix_list.append(Matrix("TestD", [[2, 3, 0, 5], [4, -3, -1, 1], [2, 5, 1, 3], [2, 7, 2, -2]]))
     main()

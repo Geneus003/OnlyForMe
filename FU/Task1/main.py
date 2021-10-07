@@ -31,9 +31,6 @@ class Matrix:
         self.matrix = new_matrix
         self.rows, self.columns = self.columns, self.rows
 
-    def find_det(self):
-        pass
-
 
 def check_type(a):
     def is_float(potential_float):
@@ -119,7 +116,7 @@ def main():
         elif user_input == 4:
             print(calculate_mathematical_expression().matrix)
         elif user_input == 5:
-            
+            print(find_determinant())
 
     input("Введите что-нибудь для выхода")
 
@@ -329,6 +326,34 @@ def calculate_mathematical_expression():
     return get_matrix_from_name(calculate_it(expression))
 
 
+def find_determinant():
+    def find_det(matrix):
+        if len(matrix) > 2:
+            s = 0
+            for k, e in enumerate(matrix[0]):
+                new_matrix = []
+                for i in range(1, len(matrix)):
+                    new_matrix.append([])
+                    for j in range(len(matrix)):
+                        if j != k:
+                            new_matrix[-1].append(matrix[i][j])
+
+                s += e * (-1)**k * find_det(new_matrix)
+            return s
+        else:
+            return matrix[0][0]*matrix[1][1] - matrix[0][1]*matrix[1][0]
+
+    print("Введите имя матрицы которую хотите транспонировать. Доступные имена:", end=" ")
+    for i in matrix_list:
+        print(i.name, end=" , ")
+    name = input("Введите имя: ")
+    temp_id = get_matrix_id_from_name(name)
+    if temp_id is None:
+        print("Такое имя не найдено")
+    else:
+        return find_det(matrix_list[temp_id].matrix)
+
+
 def read_matrix():
 
     def get_matrix_via_input():
@@ -440,6 +465,7 @@ def show_matrix():
 
 if __name__ == "__main__":
     matrix_list.append(Matrix("A", [[2, 0, -1], [0, -2, 2]]))
-    matrix_list.append(Matrix("B", [[4, 1, 0], [3, 2, 1], [0, 1, 0]]))
+    matrix_list.append(Matrix("B", [[4.3, 1, 0], [3, 2.7, 1], [6.7, 1, 7.8]]))
     matrix_list.append(Matrix("C", [[3, 0, 7], [13, -12, 11], [10, -9, 10]]))
+    matrix_list.append(Matrix("D", [[2, 3, 0, 5], [4, -3, -1, 1], [2, 5, 1, 3], [2, 7, 2, -2]]))
     main()

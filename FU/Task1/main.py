@@ -499,7 +499,7 @@ def read_matrix():
                 for el in row:
                     a = check_type(el)
                     if a is None:
-                        print("Невозможно распознать:", el)
+                        print("Невозможно распознать элемент в csv файле:", el)
                         return None
                     else:
                         matrix[-1].append(el)

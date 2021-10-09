@@ -51,6 +51,7 @@ def main():
     global list_of_all_files
     file_finder("test_images")
     print("Найдено", len(list_of_all_files), "файлов")
+    input("Введи что-нибудь для продолжения(конвертации)")
     file_changer(list_of_all_files)
 
 

@@ -21,8 +21,12 @@ def file_finder(pat):
 def file_changer(list_of_files):
     all_files = len(list_of_files)
     for i, e in enumerate(list_of_files):
-        if (i+1) % 500 == 0:
-            print("Обработано {} из {}".format(i+1, all_files))
+        try:
+            if (i+1) % 500 == 0:
+                print("Обработано {} из {}".format(i+1, all_files))
+        except:
+            print("Вообще хер знает, что произошло, счетчика не будет")
+
         coef = 1
         try:
             img = Image.open(e)

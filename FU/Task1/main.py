@@ -29,6 +29,7 @@ import math
 matrix_list = []
 temp_matrix_list = []
 temp_counter = 1
+razdelitel = ","
 
 
 class Matrix:
@@ -74,6 +75,7 @@ def check_type(a):
 
     try:
         a = a.replace(" ", "")
+        a = a.replace("J", "j")
         if "+" in a:
             if a[-1] != "j":
                 a = a.split("+")[-1] + "+" + a.split("+")[0]
@@ -135,11 +137,13 @@ def get_matrix_id_from_name(name):
 
 
 def main():
+    global razdelitel
 
     while True:
         print("Выберите действие: \n1) Ввести матрицу \n2) Показать матрицы \n3) Транспонировать матрицу"
-              "\n4) Посчитать выражение\n5) Вычислить определитель\n6) Вычисление нормы матрицы")
-        user_input = get_user_number(6)
+              "\n4) Посчитать выражение\n5) Вычислить определитель\n6) Вычисление нормы матрицы\n"
+              "7) Выбрать разделитель для csv файлов(сейчас - {})".format(razdelitel))
+        user_input = get_user_number(7)
 
         if user_input == 0:
             break
@@ -155,7 +159,8 @@ def main():
             find_determinant()
         elif user_input == 6:
             find_norm()
-
+        elif user_input == 7:
+            choose_separator()
 
     input("Введите что-нибудь для выхода ")
 
@@ -205,6 +210,7 @@ def calculate_mathematical_expression():
         a = a.strip()
         b = b.strip()
         global temp_matrix_list, temp_counter
+
         if "(" in a:
             a = calculate_it(a)
         if "(" in b:
@@ -216,8 +222,10 @@ def calculate_mathematical_expression():
 
         if check_type(a):
             a = check_type(a)
+            t_b = b
             b = get_matrix_from_name(b)
             if b is None:
+                print("Невозможно получить матрицу по заданному имени", t_b)
                 return None
 
             for i in b.matrix:
@@ -227,8 +235,10 @@ def calculate_mathematical_expression():
 
         elif check_type(b):
             b = check_type(b)
+            t_a = a
             a = get_matrix_from_name(b)
             if a is None:
+                print("Невозможно получить матрицу по заданному имени", t_a)
                 return None
 
             for i in a.matrix:
@@ -236,11 +246,14 @@ def calculate_mathematical_expression():
                 for j in i:
                     new_matrix[-1].append(j * b)
         else:
+            t_a, t_b = a, b
             a = get_matrix_from_name(a)
             b = get_matrix_from_name(b)
             if a is None or b is None:
+                print("Невозможно получить матрицу по одному из заданных имен", t_a, t_b)
                 return None
             if a.columns != b.rows:
+                print("Невозможно перемножить матрицы(размеры)")
                 return None
 
             for i in range(a.rows):
@@ -268,11 +281,15 @@ def calculate_mathematical_expression():
         a = brackets_remover(a)
         b = brackets_remover(b)
 
+        t_a, t_b = a, b
+
         a = get_matrix_from_name(a)
         b = get_matrix_from_name(b)
         if a is None or b is None:
+            print("Невозможно получить матрицу по одному из заданных имен", t_a, t_b)
             return None
         if a.rows != b.rows or a.columns != b.columns:
+            print("Невозможно сложить матрицы(размеры)", t_a, t_b)
             return None
 
         new_matrix = []
@@ -410,7 +427,7 @@ def calculate_mathematical_expression():
     temp = get_matrix_from_name(calculate_it(expression))
 
     if temp is None:
-        print("Something gone wrong")
+        print("Что-то пошло не так")
     else:
         temp.print_it()
     return
@@ -454,17 +471,21 @@ def find_determinant():
 
 
 def read_matrix():
+    global razdelitel
 
     def get_matrix_via_input():
+        name = get_matrix_name()
         while True:
-            name = get_matrix_name()
             try:
                 row = int(input("Введите кол-во строк ").strip())
                 column = int(input("Введите кол-во столбцов ").strip())
             except ValueError:
                 print("Введены не числа, попробуйте снова")
             else:
-                break
+                if row <= 0 or column <= 0:
+                    print("Одно из чисел меньше или равно 0")
+                else:
+                    break
 
         matrix = []
 
@@ -484,25 +505,28 @@ def read_matrix():
         return Matrix(name, matrix)
 
     def get_matrix_from_templates():
-        matrix_templates = [[[1, 2, 3], [1 + 3j, 2, 5.5], [4 + 6j, 6, 5]],
-                            [[3, 4, 5], [1 + 6j, 2, 8.5], [4 + 6j, 6, 5]]]
+        matrix_templates = []
+        matrix_templates.append(Matrix("A", [[2, 0, -1], [0, -2, 2]]))
+        matrix_templates.append(Matrix("B", [[4.3, 1, 0], [3, 2.7, 1], [6.7, 1, 7.8]]))
+        matrix_templates.append(Matrix("C", [[3, 0, 7], [13, -12, 11], [10, -9, 10]]))
+        matrix_templates.append(Matrix("D", [[2, 3, 0, 5], [4, -3, -1, 1], [2, 5, 1, 3], [2, 7, 2, -2]]))
+        matrix_templates.append(Matrix("F", [[5 + 6j, 5.7 + 7j, 8j], [1, 0.5, 5], [5 + 8j, 5.7 + 7.4j, 8j]]))
+        matrix_templates.append(Matrix("T", [[555 + 66j, 5.7 + 7j, 8j], [1, 0.5, 5], [5 + 8j, 5.7 + 7.4j, 8j]]))
+        matrix_templates.append(Matrix("E", [[10, -7, 0], [-3, 2, 6], [5, -1, 5]]))
 
         for i, e in enumerate(matrix_templates):
             print("Матрица", i+1)
-            for j in e:
-                for k in j:
-                    print(k, end=" ")
-                print()
+            e.print_it()
 
         a = get_user_number(len(matrix_templates))
         if a == 0:
             return None
 
         name = get_matrix_name()
-        return Matrix(name, matrix_templates[a-1])
+        return Matrix(name, matrix_templates[a-1].matrix)
 
     def get_matrix_from_csv():
-        print("Выберите .csv файл(разделитель: ','):")
+        print("Выберите .csv файл(разделитель: '{}'):".format(razdelitel))
         files_in_directory = os.listdir()
         available_files = []
         temp_con = 0
@@ -518,16 +542,16 @@ def read_matrix():
 
         matrix = []
         with open(available_files[a-1], 'r') as csv_file:
-            csv_data = csv.reader(csv_file)
+            csv_data = csv.reader(csv_file, delimiter=razdelitel)
             for row in csv_data:
                 matrix.append([])
                 for el in row:
                     a = check_type(el)
                     if a is None:
-                        print("Невозможно распознать элемент в csv файле:", el)
+                        print("Невозможно распознать элемент в csv файле(возможно указан неверный разделитель):", el)
                         return None
                     else:
-                        matrix[-1].append(el)
+                        matrix[-1].append(a)
 
         name = get_matrix_name()
         return Matrix(name, matrix)
@@ -546,7 +570,7 @@ def read_matrix():
     elif user_input == 3:
         temp_matrix = get_matrix_from_csv()
 
-    if temp_matrix is not None:
+    if temp_matrix is not None and temp_matrix:
         matrix_list.append(temp_matrix)
 
 
@@ -588,7 +612,15 @@ def find_norm():
     find_all_norms_for_matrix(matrix_list[temp_id])
 
 
+def choose_separator():
+    global razdelitel
+    print("Введите разделитель который хотите использовать")
+    razdelitel = input()
+    print("Разделитель сохранен")
+
+
 if __name__ == "__main__":
+    """
     matrix_list.append(Matrix("A", [[2, 0, -1], [0, -2, 2]]))
     matrix_list.append(Matrix("B", [[4.3, 1, 0], [3, 2.7, 1], [6.7, 1, 7.8]]))
     matrix_list.append(Matrix("C", [[3, 0, 7], [13, -12, 11], [10, -9, 10]]))
@@ -596,4 +628,5 @@ if __name__ == "__main__":
     matrix_list.append(Matrix("F", [[5+6j, 5.7+7j, 8j], [1, 0.5, 5], [5+8j, 5.7+7.4j, 8j]]))
     matrix_list.append(Matrix("T", [[5555555555 + 66666j, 5.7 + 7j, 8j], [1, 0.5, 5], [5 + 8j, 5.7 + 7.4j, 8j]]))
     matrix_list.append(Matrix("E", [[10, -7, 0], [-3, 2, 6], [5, -1, 5]]))
+    """
     main()

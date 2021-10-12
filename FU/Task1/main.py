@@ -38,10 +38,22 @@ class Matrix:
         self.rows = len(self.matrix)
         self.columns = len(self.matrix[0])
 
-    def print_it(self):
+    def print_it(self, space_between=12):
         for i in self.matrix:
             for j in i:
-                print(j, end=" ")
+                if space_between < len(str(j)):
+                    space_between = len(str(j))
+
+        for i in self.matrix:
+            for j in i:
+                el = str(j)
+                if len(el) > space_between:
+                    print(el, end="")
+                else:
+                    prob = space_between - len(el)
+                    prob1 = prob // 2
+                    prob2 = prob - prob1
+                    print(" "*prob1, el, " "*prob2, sep="", end="")
             print()
 
     def transpose(self):
@@ -65,6 +77,9 @@ def check_type(a):
 
     try:
         a = a.replace(" ", "")
+        if "+" in a:
+            if a[-1] != "j":
+                a = a.split("+")[-1] + "+" + a.split("+")[0]
     except AttributeError:
         pass
 
@@ -104,13 +119,14 @@ def get_matrix_name():
         for i in matrix_list:
             if i.name == name:
                 print("Это название уже занято")
-
-        for i in name:
-            if not(65 <= ord(i) <= 90 or 97 <= ord(i) <= 122) or ord(i) == 106:
-                print("В названии сожержится не латинская буква:", i)
                 break
         else:
-            break
+            for i in name:
+                if not(65 <= ord(i) <= 90 or 97 <= ord(i) <= 122) or ord(i) == 106:
+                    print("В названии сожержится не латинская буква:", i)
+                    break
+            else:
+                break
     return name
 
 
@@ -139,7 +155,7 @@ def main():
         elif user_input == 4:
             calculate_mathematical_expression()
         elif user_input == 5:
-            print(find_determinant())
+            find_determinant()
 
     input("Введите что-нибудь для выхода")
 
@@ -402,6 +418,11 @@ def calculate_mathematical_expression():
 
 def find_determinant():
     def find_det(matrix):
+        try:
+            if len(matrix) != len(matrix[-1]):
+                return None
+        except:
+            print("Невозможно проверить является ли матрица квадратной")
         if len(matrix) > 2:
             s = 0
             for k, e in enumerate(matrix[0]):
@@ -425,7 +446,11 @@ def find_determinant():
     if temp_id is None:
         print("Такое имя не найдено")
     else:
-        return find_det(matrix_list[temp_id].matrix)
+        a = find_det(matrix_list[temp_id].matrix)
+        if a is not None:
+            print(a)
+        else:
+            print("Матрица не квадратная")
 
 
 def read_matrix():
@@ -437,7 +462,7 @@ def read_matrix():
                 row = int(input("Введите кол-во строк ").strip())
                 column = int(input("Введите кол-во столбцов ").strip())
             except ValueError:
-                print("Попробуйте снова")
+                print("Введены не числа, попробуйте снова")
             else:
                 break
 
@@ -451,7 +476,7 @@ def read_matrix():
                     a = input("Введите элемент ({} {}) ".format(i + 1, j + 1))
                     a = check_type(a)
                     if a is None:
-                        print("НЕВЕРНО")
+                        print("Элемент невозможно распознать")
                     else:
                         matrix[i].append(a)
                         break
@@ -532,14 +557,16 @@ def show_matrix():
     name = input("Введите имя: ")
     temp_id = get_matrix_id_from_name(name)
     if temp_id is None:
-        print("Такое имя не найдено")
+        print("Данное имя не найдено")
     else:
         matrix_list[temp_id].print_it()
 
 
 if __name__ == "__main__":
-    matrix_list.append(Matrix("TestA", [[2, 0, -1], [0, -2, 2]]))
-    matrix_list.append(Matrix("TestB", [[4.3, 1, 0], [3, 2.7, 1], [6.7, 1, 7.8]]))
-    matrix_list.append(Matrix("TestC", [[3, 0, 7], [13, -12, 11], [10, -9, 10]]))
-    matrix_list.append(Matrix("TestD", [[2, 3, 0, 5], [4, -3, -1, 1], [2, 5, 1, 3], [2, 7, 2, -2]]))
+    matrix_list.append(Matrix("A", [[2, 0, -1], [0, -2, 2]]))
+    matrix_list.append(Matrix("B", [[4.3, 1, 0], [3, 2.7, 1], [6.7, 1, 7.8]]))
+    matrix_list.append(Matrix("C", [[3, 0, 7], [13, -12, 11], [10, -9, 10]]))
+    matrix_list.append(Matrix("D", [[2, 3, 0, 5], [4, -3, -1, 1], [2, 5, 1, 3], [2, 7, 2, -2]]))
+    matrix_list.append(Matrix("F", [[5+6j, 5.7+7j, 8j], [1, 0.5, 5], [5+8j, 5.7+7.4j, 8j]]))
+    matrix_list.append(Matrix("T", [[5555555555 + 66666j, 5.7 + 7j, 8j], [1, 0.5, 5], [5 + 8j, 5.7 + 7.4j, 8j]]))
     main()

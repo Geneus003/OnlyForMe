@@ -1,23 +1,4 @@
 """
-класс Matrix - класс для хранения имени матрийцы и самой матрицы
-check_type - Принимает строку возвращает измененую по типу переменную, если она под него подходит(int, float, complex)
-get_user_number - Принимает число до которого происходит выбор действи, возвращает корректный комер
-get_matrix_name - Проверяет доступно ли имя для матрицы
-get_matrix_id_from_name - Возвращает  id матрицы по ее названию
-main - Главная функция, main loop
-transpose - Функция по транспонированию матрицы
-calculate_mathematical_expression - Функция для подсчета выражения
-brackets_remover - Удаляет скобки, если все выражение заключено в них
-get_matrix_from_name - Возвращает матрицы по имени
-mult_mat(a, b) - Перемножение a*b
-plus_mat(a, b) - Сложение a+b
-calculate_it - Функция для подсчета выражения, используется переодически рекурсивно
-find_determinant - Стартовая функция для нахождения определителя
-find_det - Рекурсивная функция для нахождения определителя
-read_matrix - Стартовая функция для ввода матрциы
-get_matrix_via_input - Ввод матрицы ручками
-get_matrix_from_templates - Ввод матрциы из шаблонов
-get_matrix_from_csv - Ввод матрциы из csv
 show_matrix - Показать матрицу
 """
 
@@ -26,12 +7,13 @@ import csv
 import os
 import math
 
-matrix_list = []
-temp_matrix_list = []
-temp_counter = 1
-razdelitel = ","
+matrix_list = []    # Массив со всеми матрицами, заданными пользователем
+temp_matrix_list = []   # Массив с матрицами, который используется для вычисления выражения
+temp_counter = 1    # Счетчик, для создания временных матриц для вычисления выражения
+razdelitel = ","    # Разделитель для scv файла
 
 
+# Класс Matrix - класс для хранения имени матрийцы и самой матрицы
 class Matrix:
     def __init__(self, name, matrix):
         self.name = name
@@ -43,7 +25,7 @@ class Matrix:
         for i in self.matrix:
             for j in i:
                 if space_between < len(str(j)):
-                    space_between = len(str(j))
+                    space_between = len(str(j)) + 1
 
         for i in self.matrix:
             for j in i:
@@ -64,7 +46,7 @@ class Matrix:
         self.matrix = new_matrix
         self.rows, self.columns = self.columns, self.rows
 
-
+# check_type - Принимает строку возвращает измененую по типу переменную, если она под него подходит(int, float, complex)
 def check_type(a):
     def is_float(potential_float):
         try:
@@ -95,7 +77,7 @@ def check_type(a):
         return None
     return a
 
-
+# get_user_number - Принимает число до которого происходит выбор действи, возвращает корректный комер
 def get_user_number(n):
     while True:
         a = input("Ввод(0-вернуться/выйти): ")
@@ -111,6 +93,7 @@ def get_user_number(n):
     return a
 
 
+# get_matrix_name - Проверяет доступно ли имя для матрицы
 def get_matrix_name():
     while True:
         name = input("Введите название переменной для матрицы(только Латинские буквы) ")
@@ -129,6 +112,7 @@ def get_matrix_name():
     return name
 
 
+# get_matrix_id_from_name - Возвращает  id матрицы по ее названию
 def get_matrix_id_from_name(name):
     for i, e in enumerate(matrix_list):
         if e.name == name:
@@ -136,6 +120,7 @@ def get_matrix_id_from_name(name):
     return None
 
 
+# Основная функция
 def main():
     global razdelitel
 
@@ -164,7 +149,7 @@ def main():
 
     input("Введите что-нибудь для выхода ")
 
-
+# transpose - Функция по транспонированию матрицы
 def transpose():
     print("Введите имя матрицы которую хотите транспонировать. Доступные имена:", end=" ")
     for i in matrix_list:
@@ -178,9 +163,11 @@ def transpose():
         print("Матрица {} теперь транспонированная".format(name))
 
 
+# calculate_mathematical_expression - Функция для подсчета выражения
 def calculate_mathematical_expression():
     global matrix_list, temp_matrix_list
 
+    # brackets_remover - Удаляет скобки, если все выражение заключено в них
     def brackets_remover(exp):
         bracket_count = 0
         for i, e in enumerate(exp):
@@ -196,6 +183,7 @@ def calculate_mathematical_expression():
 
         return exp
 
+    # get_matrix_from_name - Возвращает матрицы по имени
     def get_matrix_from_name(name):
         for i, e in enumerate(matrix_list):
             if e.name == name:
@@ -206,6 +194,7 @@ def calculate_mathematical_expression():
                 return temp_matrix_list[i]
         return None
 
+    # mult_mat(a, b) - Перемножение a*b
     def mult_mat(a, b):
         a = a.strip()
         b = b.strip()
@@ -236,7 +225,7 @@ def calculate_mathematical_expression():
         elif check_type(b):
             b = check_type(b)
             t_a = a
-            a = get_matrix_from_name(b)
+            a = get_matrix_from_name(a)
             if a is None:
                 print("Невозможно получить матрицу по заданному имени", t_a)
                 return None
@@ -269,6 +258,7 @@ def calculate_mathematical_expression():
 
         return "Temp"+str(temp_counter-1)
 
+    # plus_mat(a, b) - Сложение a+b
     def plus_mat(a, b):
         a = a.strip()
         b = b.strip()
@@ -303,6 +293,7 @@ def calculate_mathematical_expression():
 
         return "Temp" + str(temp_counter - 1)
 
+    # calculate_it - Функция для подсчета выражения, используется рекурсивно
     def calculate_it(expr):
         expr = brackets_remover(expr)
 
@@ -323,7 +314,7 @@ def calculate_mathematical_expression():
                                 value1 = expr[j+1:i]
                                 break
 
-                        if (expr[j] == "+" or expr[j] == "-" or expr[j] == "*") and not is_in_brackets:
+                        if (expr[j] == "+" or expr[j] == "*") and not is_in_brackets:
                             value1 = expr[j+1:i]
                             break
                     else:
@@ -341,7 +332,7 @@ def calculate_mathematical_expression():
                             elif is_in_brackets == -1:
                                 value2 = expr[i+1:j]
                                 break
-                        if (expr[j] == "+" or expr[j] == "-" or expr[j] == "*") and not is_in_brackets:
+                        if (expr[j] == "+" or expr[j] == "*") and not is_in_brackets:
                             value2 = expr[i+1:j]
                             break
                     else:
@@ -368,7 +359,7 @@ def calculate_mathematical_expression():
                             elif is_in_brackets == -1:
                                 value1 = expr[j + 1:i]
                                 break
-                        if (expr[j] == "+" or expr[j] == "-") and not is_in_brackets:
+                        if (expr[j] == "+") and not is_in_brackets:
                             value1 = expr[j + 1:i]
                             break
                     else:
@@ -386,7 +377,7 @@ def calculate_mathematical_expression():
                             elif is_in_brackets == -1:
                                 value2 = expr[i + 1:j]
                                 break
-                        if (expr[j] == "+" or expr[j] == "-") and not is_in_brackets:
+                        if (expr[j] == "+") and not is_in_brackets:
                             value2 = expr[i + 1:j]
                             break
                     else:
@@ -403,27 +394,6 @@ def calculate_mathematical_expression():
     expression = input().replace(" ", "")
     mas_chis = []
     temp_matrix_list = []
-    temp1 = None
-    for i, e in enumerate(expression):
-        if e.isdigit() or e == "." or e == "j":
-            if temp1 is None:
-                temp1 = i
-        else:
-            if e == "*":
-                temp1 = None
-            if temp1 is not None:
-                mas_chis.append([temp1, i])
-                temp1 = None
-
-    new_expression = ""
-    pr_end = 0
-    for i in mas_chis:
-        new_expression += expression[pr_end: i[-1]]
-        new_expression += "*"
-        pr_end = i[-1]
-    new_expression += expression[pr_end:]
-    expression = new_expression
-
     temp = get_matrix_from_name(calculate_it(expression))
 
     if temp is None:
@@ -433,7 +403,9 @@ def calculate_mathematical_expression():
     return
 
 
+# find_determinant - Стартовая функция для нахождения определителя
 def find_determinant():
+    # find_det - Рекурсивная функция для нахождения определителя
     def find_det(matrix):
         try:
             if len(matrix) != len(matrix[-1]):
@@ -470,9 +442,11 @@ def find_determinant():
             print("Матрица не квадратная")
 
 
+# read_matrix - Стартовая функция для ввода матрциы
 def read_matrix():
     global razdelitel
 
+    # get_matrix_via_input - Ввод матрицы ручками
     def get_matrix_via_input():
         name = get_matrix_name()
         while True:
@@ -504,6 +478,7 @@ def read_matrix():
 
         return Matrix(name, matrix)
 
+    # get_matrix_from_templates - Ввод матрциы из шаблонов
     def get_matrix_from_templates():
         matrix_templates = []
         matrix_templates.append(Matrix("A", [[2, 0, -1], [0, -2, 2]]))
@@ -525,6 +500,7 @@ def read_matrix():
         name = get_matrix_name()
         return Matrix(name, matrix_templates[a-1].matrix)
 
+    # get_matrix_from_csv - Ввод матрциы из csv
     def get_matrix_from_csv():
         print("Выберите .csv файл(разделитель: '{}'):".format(razdelitel))
         files_in_directory = os.listdir()
@@ -574,6 +550,7 @@ def read_matrix():
         matrix_list.append(temp_matrix)
 
 
+# show_matrix - Показать матрицу
 def show_matrix():
     print("Введите имя матрицы которую хотите вывести. Доступные имена:", end=" ")
     for i in matrix_list:
@@ -586,6 +563,7 @@ def show_matrix():
         matrix_list[temp_id].print_it()
 
 
+# find_norm - Найти нормы матрицы
 def find_norm():
     def find_all_norms_for_matrix(matrix):
         sum_rows = [0 for i in range(len(matrix.matrix))]
@@ -612,6 +590,7 @@ def find_norm():
     find_all_norms_for_matrix(matrix_list[temp_id])
 
 
+# choose_separator - Выбрать разделитель для csv файла
 def choose_separator():
     global razdelitel
     print("Введите разделитель который хотите использовать")

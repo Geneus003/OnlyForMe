@@ -390,7 +390,7 @@ def calculate_mathematical_expression():
 
         return expr
 
-    print("Введите выражение, которое хотите посчитать")
+    print("Введите выражение, которое хотите посчитать прим.(A - B записывать в виде A+(-1)*B), можно с пробелами")
     expression = input().replace(" ", "")
     mas_chis = []
     temp_matrix_list = []

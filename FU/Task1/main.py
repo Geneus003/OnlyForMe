@@ -1,8 +1,3 @@
-"""
-show_matrix - Показать матрицу
-"""
-
-
 import csv
 import os
 import math

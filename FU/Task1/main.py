@@ -24,7 +24,7 @@ show_matrix - Показать матрицу
 
 import csv
 import os
-
+import math
 
 matrix_list = []
 temp_matrix_list = []
@@ -47,13 +47,10 @@ class Matrix:
         for i in self.matrix:
             for j in i:
                 el = str(j)
-                if len(el) > space_between:
-                    print(el, end="")
-                else:
-                    prob = space_between - len(el)
-                    prob1 = prob // 2
-                    prob2 = prob - prob1
-                    print(" "*prob1, el, " "*prob2, sep="", end="")
+                prob = space_between - len(el)
+                prob1 = prob // 2
+                prob2 = prob - prob1
+                print(" "*prob1, el, " "*prob2, sep="", end="")
             print()
 
     def transpose(self):
@@ -141,8 +138,8 @@ def main():
 
     while True:
         print("Выберите действие: \n1) Ввести матрицу \n2) Показать матрицы \n3) Транспонировать матрицу"
-              "\n4) Посчитать выражение\n5) Найти определитель")
-        user_input = get_user_number(5)
+              "\n4) Посчитать выражение\n5) Вычислить определитель\n6) Вычисление нормы матрицы")
+        user_input = get_user_number(6)
 
         if user_input == 0:
             break
@@ -156,8 +153,11 @@ def main():
             calculate_mathematical_expression()
         elif user_input == 5:
             find_determinant()
+        elif user_input == 6:
+            find_norm()
 
-    input("Введите что-нибудь для выхода")
+
+    input("Введите что-нибудь для выхода ")
 
 
 def transpose():
@@ -562,6 +562,32 @@ def show_matrix():
         matrix_list[temp_id].print_it()
 
 
+def find_norm():
+    def find_all_norms_for_matrix(matrix):
+        sum_rows = [0 for i in range(len(matrix.matrix))]
+        sum_cols = [0 for i in range(len(matrix.matrix[0]))]
+        sec_norm = 0
+        for i, e in enumerate(matrix.matrix):
+            for j, ee in enumerate(e):
+                print(ee, sum_rows, sum_cols, sec_norm)
+                sum_rows[i] += abs(ee)
+                sum_cols[j] += abs(ee)
+                sec_norm += abs(ee)**2
+        print("Бесокнечная норма для матрицы {} - {}".format(matrix.name, max(sum_rows)))
+        print("1 норма для матрицы {} - {}".format(matrix.name, max(sum_cols)))
+        print("2 норма для матрицы {} - {}".format(matrix.name, math.sqrt(sec_norm)))
+
+    print("Введите имя матрицы которую хотите вывести. Доступные имена:", end=" ")
+    for i in matrix_list:
+        print(i.name, end=" , ")
+    name = input("Введите имя: ")
+    temp_id = get_matrix_id_from_name(name)
+    if temp_id is None:
+        print("Данное имя не найдено")
+        return
+    find_all_norms_for_matrix(matrix_list[temp_id])
+
+
 if __name__ == "__main__":
     matrix_list.append(Matrix("A", [[2, 0, -1], [0, -2, 2]]))
     matrix_list.append(Matrix("B", [[4.3, 1, 0], [3, 2.7, 1], [6.7, 1, 7.8]]))
@@ -569,4 +595,5 @@ if __name__ == "__main__":
     matrix_list.append(Matrix("D", [[2, 3, 0, 5], [4, -3, -1, 1], [2, 5, 1, 3], [2, 7, 2, -2]]))
     matrix_list.append(Matrix("F", [[5+6j, 5.7+7j, 8j], [1, 0.5, 5], [5+8j, 5.7+7.4j, 8j]]))
     matrix_list.append(Matrix("T", [[5555555555 + 66666j, 5.7 + 7j, 8j], [1, 0.5, 5], [5 + 8j, 5.7 + 7.4j, 8j]]))
+    matrix_list.append(Matrix("E", [[10, -7, 0], [-3, 2, 6], [5, -1, 5]]))
     main()

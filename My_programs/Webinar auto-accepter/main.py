@@ -27,9 +27,9 @@ def find_browser_window():
 
 def main():
     global a
-
     wait_leave_input = Thread(target=wait_user_input)
     wait_leave_input.start()
+
     while True:
         find_browser_window()
         if temp_hwnd is None:
@@ -38,6 +38,7 @@ def main():
             time.sleep(0.5)
         else:
             break
+
     while a:
         print(temp_hwnd, win32gui.GetWindowText(temp_hwnd))
         time.sleep(1)

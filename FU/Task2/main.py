@@ -24,8 +24,8 @@ def check_type(a):
 def main():
     # matrix = get_matrix_via_input()
     # vector_ot = get_matrix_via_input(len(matrix))
-    matrix = [[10, 1, -1], [1, 10, -1], [-1, 1, 10]]
-    vector_ot = [11, 10, 10]
+    matrix = [[5, -3, 1], [-0.5, 3, 2], [1, -2, 5]]
+    vector_ot = [3, 0.5, 4]
     print(matrix, vector_ot)
     yakobi(matrix, vector_ot)
 

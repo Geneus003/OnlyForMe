@@ -5,11 +5,13 @@ import random
 
 
 def main():
-    list_of_cords_1 = [[(-1307, 397), (-1308, 441)], [(-1305, 574), (-1303, 616), (-1307, 651), (-1305, 692)],
-                   [(-1309, 824), (-1310, 864), (-1308, 907)]]
-    list_of_cords_2 = [[(-1307, 371), (-1307, 411), (-1309, 448)], [(-1304, 579), (-1308, 623), (-1305, 661)]]
+    list_of_cords_1 = [[(-1302, 401), (-1309, 441)], [(-1306, 573), (-1304, 614), (-1309, 656), (-1307, 696)],
+                       [(-1305, 828), (-1305, 865)]]
+    list_of_cords_2 = [[(-1308, 298), (-1302, 337), (-1310, 379), (-1307, 412)], [(-1305, 544), (-1304, 591), (-1305, 629), (-1305, 672), (-1304, 707)]]
     time.sleep(2)
-    for k in range(50):
+
+    for k in range(80):
+        print(k)
         url = "https://forms.office.com/Pages/ResponsePage.aspx?id=rprGyLoy0UOfWfmMlfsie6C3WuyxEhdAmi7nEg-u1gNUM0pINVI0S1UwME5IS1JMTTlXT0ZaM1hWQS4u"
 
         for i in list_of_cords_1:
@@ -27,9 +29,9 @@ def main():
             mouse.click()
             time.sleep(0.3)
 
-        mouse.move(-1194, 740)
+        mouse.move(-1308, 778)
         mouse.click()
-        time.sleep(2)
+        time.sleep(1)
 
         mouse.move(-765, 55)
         mouse.click()

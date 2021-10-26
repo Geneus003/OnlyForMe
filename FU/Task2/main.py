@@ -11,9 +11,14 @@ def main():
         reverse_vector_ot = find_reverse_matrix(vector_ot)
 
         yakobi_solutions = yakobi(matrix, vector_ot)
-        yakobi_solutions_rev = yakobi(reverse_matrix, reverse_vector_ot)
+        yakobi_solutions_rev = yakobi(reverse_matrix, vector_ot)
 
-        coef_obusl = find_norm(yakobi_solutions) * find_norm(yakobi_solutions_rev)
+        temp_matrix = solve_eq(matrix, yakobi_solutions)
+        temp_matrix_reverse = find_reverse_matrix(temp_matrix)
+
+        print_matrix(temp_matrix, False)
+
+        coef_obusl = find_norm(temp_matrix) * find_norm(temp_matrix_reverse)
 
         if coef_obusl < target_value:
             print("Матрица обусловленна хорошо для метода Якоби:", coef_obusl)
@@ -24,10 +29,27 @@ def main():
             print_matrix(yakobi_solutions, True)
 
         print()
-        gaus_solution_first = gaus_jourdan(matrix, vector_ot)
-        gaus_solution_first_reverse = gaus_jourdan(reverse_matrix, reverse_vector_ot)
 
-        coef_obusl = find_norm(gaus_solution_first) * find_norm(gaus_solution_first_reverse)
+        gaus_solution_first = gaus_jourdan(matrix, vector_ot)
+        gaus_solution_first_reverse = gaus_jourdan(reverse_matrix, vector_ot)
+
+        new_gaus_solutions_first = []
+        for i in range(len(gaus_solution_first)):
+            new_gaus_solutions_first.append([])
+            for j in range(len(gaus_solution_first[0])):
+                if j >= len(matrix[0]):
+                    new_gaus_solutions_first[i].append(gaus_solution_first[i][j])
+        gaus_solution_first = new_gaus_solutions_first
+
+
+        temp_matrix = solve_eq(matrix, gaus_solution_first)
+        temp_matrix_reverse = find_reverse_matrix(temp_matrix)
+        print_matrix(matrix, False)
+        print_matrix(gaus_solution_first, True)
+        print()
+        print_matrix(temp_matrix, False)
+        print_matrix(temp_matrix_reverse, False)
+        coef_obusl = find_norm(temp_matrix) * find_norm(temp_matrix_reverse)
 
         if coef_obusl < target_value:
             print("Матрица обусловленна хорошо для метода Жордана-Гаусса:", coef_obusl)
@@ -35,13 +57,7 @@ def main():
         else:
             print("Матрица обусловленна плохо для метода Жордана-Гаусса:", coef_obusl)
             print("Решения для метода Жордана-Гаусса")
-            new_gaus_solutions_first = []
-            for i in range(len(gaus_solution_first)):
-                new_gaus_solutions_first.append([])
-                for j in range(len(gaus_solution_first[0])):
-                    if j >= len(matrix[0]):
-                        new_gaus_solutions_first[i].append(gaus_solution_first[i][j])
-            print_matrix(new_gaus_solutions_first, True)
+            print_matrix(gaus_solution_first, True)
 
         print()
         matrix_fraction = convert_matrix_to_fraction(copy.deepcopy(matrix))
@@ -60,6 +76,7 @@ def main():
 
         return new_gaus_solution_second, reverse_matrix
 
+    """
     print("ВВОД ИСХОДНОЙ МАТРИЦЫ")
     matrix = read_matrix()
     if matrix is None:
@@ -68,8 +85,9 @@ def main():
     vector_ot = read_matrix(size=len(matrix))
     if vector_ot is None:
         return
-    # matrix = [[2.6, -1.7, 2.5], [1.5, 6.2, -2.9], [2.8, -1.7, 3.8]]
-    # vector_ot = [[3.7], [3.2], [2.8]]
+    """
+    matrix = [[1, 2], [1, 1.9999]]
+    vector_ot = [[3], [3]]
 
     deter = find_det(matrix)
     if deter is None:
@@ -88,6 +106,16 @@ def main():
     print_matrix(reverse_matrix, False)
     print("Вектор переменных")
     print_matrix(solutions, True)
+
+
+def solve_eq(matrix, resh):
+    new_matrix = []
+    for i, e in enumerate(matrix):
+        new_matrix.append([])
+        for j, ee in enumerate(e):
+            new_matrix[i].append(ee*resh[j][0])
+    return new_matrix
+
 
 
 def yakobi(matrix, vector_ot, iter_count=300):
@@ -128,7 +156,10 @@ def gaus_jourdan(matrixs, vector_ot):
     for i in range(len(matrix)):
         temp_matrix = []
         for j in range(len(matrix[0])):
-            temp_matrix.append(matrix[i][j] / matrix[i][i])
+            if matrix[i][i] == 0:
+                temp_matrix.append(matrix[i][j] / 0.0000000001)
+            else:
+                temp_matrix.append(matrix[i][j] / matrix[i][i])
         matrix[i] = temp_matrix
         for j in range(len(matrix)):
             temp_matrix = []

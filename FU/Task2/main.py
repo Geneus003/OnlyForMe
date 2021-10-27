@@ -16,7 +16,7 @@ def main():
         temp_matrix = solve_eq(matrix, yakobi_solutions)
         temp_matrix_reverse = find_reverse_matrix(temp_matrix)
 
-        print_matrix(temp_matrix, False)
+        print_matrix(temp_matrix_reverse, False)
 
         coef_obusl = find_norm(temp_matrix) * find_norm(temp_matrix_reverse)
 
@@ -87,7 +87,7 @@ def main():
         return
     """
     matrix = [[1, 2], [1, 1.9999]]
-    vector_ot = [[3], [3]]
+    vector_ot = [[3.01], [3]]
 
     deter = find_det(matrix)
     if deter is None:

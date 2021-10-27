@@ -3,6 +3,8 @@ import fractions
 import decimal
 import csv
 import os
+import random
+import math
 
 
 def main():
@@ -14,11 +16,15 @@ def main():
         yakobi_solutions_rev = yakobi(reverse_matrix, vector_ot)
 
         temp_matrix = solve_eq(matrix, yakobi_solutions)
-        temp_matrix_reverse = find_reverse_matrix(temp_matrix)
+        if find_det(temp_matrix) != 0:
+            temp_matrix_reverse = find_reverse_matrix(temp_matrix)
+        else:
+            temp_matrix_reverse = None
 
-        print_matrix(temp_matrix_reverse, False)
+        # print_matrix(temp_matrix_reverse, False)
 
-        coef_obusl = find_norm(temp_matrix) * find_norm(temp_matrix_reverse)
+        # coef_obusl = find_norm(temp_matrix) * find_norm(temp_matrix_reverse)
+        coef_obusl = find_coef_ob(matrix, temp_matrix, temp_matrix_reverse, vector_ot, yakobi_solutions)
 
         if coef_obusl < target_value:
             print("Матрица обусловленна хорошо для метода Якоби:", coef_obusl)
@@ -43,13 +49,13 @@ def main():
 
 
         temp_matrix = solve_eq(matrix, gaus_solution_first)
-        temp_matrix_reverse = find_reverse_matrix(temp_matrix)
-        print_matrix(matrix, False)
-        print_matrix(gaus_solution_first, True)
-        print()
-        print_matrix(temp_matrix, False)
-        print_matrix(temp_matrix_reverse, False)
-        coef_obusl = find_norm(temp_matrix) * find_norm(temp_matrix_reverse)
+        if find_det(temp_matrix) != 0:
+            temp_matrix_reverse = find_reverse_matrix(temp_matrix)
+        else:
+            temp_matrix_reverse = None
+
+        # coef_obusl = find_norm(temp_matrix) * find_norm(temp_matrix_reverse)
+        coef_obusl = find_coef_ob(matrix, temp_matrix, temp_matrix_reverse, vector_ot, gaus_solution_first, yak=False)
 
         if coef_obusl < target_value:
             print("Матрица обусловленна хорошо для метода Жордана-Гаусса:", coef_obusl)
@@ -74,38 +80,81 @@ def main():
                 if j >= len(matrix[0]):
                     new_gaus_solution_second[i].append(gaus_solution_second[i][j])
 
+        print("Решения для метода Жордана-Гаусса 2")
+        print_matrix(new_gaus_solution_second, True)
+
         return new_gaus_solution_second, reverse_matrix
 
-    """
-    print("ВВОД ИСХОДНОЙ МАТРИЦЫ")
-    matrix = read_matrix()
-    if matrix is None:
-        return
-    print("ВВОД ВЕКТОРА СВОБОДНЫХ ЧЛЕНОВ")
-    vector_ot = read_matrix(size=len(matrix))
-    if vector_ot is None:
-        return
-    """
-    matrix = [[1, 2], [1, 1.9999]]
-    vector_ot = [[3.01], [3]]
+    while True:
 
-    deter = find_det(matrix)
-    if deter is None:
-        print("Матрица не является квадратной")
-        return
-    elif deter == 0:
-        print("Матрица является вырожденной. Определитель равен 0")
-        return
+        print("ВВОД ИСХОДНОЙ МАТРИЦЫ")
+        matrix = read_matrix()
+        if matrix is None:
+            return
+        print("ВВОД ВЕКТОРА СВОБОДНЫХ ЧЛЕНОВ")
+        vector_ot = read_matrix(size=len(matrix))
+        if vector_ot is None:
+            return
 
-    solutions, reverse_matrix = calculate_solutions(matrix, vector_ot)
-    print("Исходная матрица:")
-    print_matrix(matrix, False)
-    print("Вектор свободных членов")
-    print_matrix(vector_ot, True)
-    print("Обратная матрица")
-    print_matrix(reverse_matrix, False)
-    print("Вектор переменных")
-    print_matrix(solutions, True)
+        # matrix = [[1, 2], [1, 1.9999]]
+        # vector_ot = [[3], [3]]
+        # matrix = [[2.6, -1.7, 2.5], [1.5, 6.2, -2.9], [2.8, -1.7, 3.8]]
+        # vector_ot = [[3.7], [3.2], [2.8]]
+        # matrix = [[1, 2], [2, 4.01]]
+        # vector_ot = [[3], [6]]
+
+        deter = find_det(matrix)
+        if deter is None:
+            print("Матрица не является квадратной")
+            continue
+        elif deter == 0:
+            print("Матрица является вырожденной. Определитель равен 0")
+            continue
+
+        solutions, reverse_matrix = calculate_solutions(matrix, vector_ot)
+        print("Исходная матрица:")
+        print_matrix(matrix, False)
+        print("Вектор свободных членов")
+        print_matrix(vector_ot, True)
+        print("Обратная матрица")
+        print_matrix(reverse_matrix, False)
+        print("Вектор переменных")
+        print_matrix(solutions, True)
+
+
+def find_coef_ob(matrix, temp_matrix, temp_matrix_reverse, vector_ot, solut, yak=True):
+    matrixx, temp_matrixx, temp_matrix_reversee = matrix, temp_matrix, temp_matrix_reverse
+    vector = copy.deepcopy(vector_ot)
+    if temp_matrix_reversee is not None:
+        for i in temp_matrixx:
+            for j in i:
+                if j == 0:
+                    break
+            else:
+                continue
+            break
+        else:
+            return find_norm(temp_matrix) * find_norm(temp_matrix_reverse)
+
+    while True:
+        vector[random.randint(0, len(vector_ot) - 1)][0] += 0.001
+        if yak:
+            yak_sol = yakobi(matrixx, vector)
+            delt_izm = find_norm(matrix_diff(vector, vector_ot))
+            delt_sol = find_norm(matrix_diff(solut, yak_sol))
+        else:
+            gau_sol = gaus_jourdan(matrixx, vector)
+            new_gaus_solutions_first = []
+            for i in range(len(gau_sol)):
+                new_gaus_solutions_first.append([])
+                for j in range(len(gau_sol[0])):
+                    if j >= len(matrix[0]):
+                        new_gaus_solutions_first[i].append(gau_sol[i][j])
+            gau_sol = new_gaus_solutions_first
+
+            delt_izm = find_norm(matrix_diff(vector, vector_ot))
+            delt_sol = find_norm(matrix_diff(solut, gau_sol))
+        return (delt_sol / find_norm(solut)) / ((delt_izm) / find_norm(vector_ot))
 
 
 def solve_eq(matrix, resh):
@@ -115,7 +164,6 @@ def solve_eq(matrix, resh):
         for j, ee in enumerate(e):
             new_matrix[i].append(ee*resh[j][0])
     return new_matrix
-
 
 
 def yakobi(matrix, vector_ot, iter_count=300):
@@ -240,11 +288,11 @@ def find_det(matrix):
 
 
 def find_norm(matrix):
-    sum_rows = [0 for i in range(len(matrix))]
+    sec_norm = 0
     for i, e in enumerate(matrix):
         for j, ee in enumerate(e):
-            sum_rows[i] += abs(ee)
-    return max(sum_rows)
+            sec_norm += abs(ee) ** 2
+    return math.sqrt(sec_norm)
 
 
 def print_matrix(matrix, is_solutions):
@@ -284,8 +332,8 @@ def read_matrix(size=None):
             except ValueError:
                 print("Введены не числа, попробуйте снова")
             else:
-                if row <= 0 or column <= 0:
-                    print("Одно из чисел меньше или равно 0")
+                if row <= 1 or column <= 1:
+                    print("Одно из чисел меньше или равно 1")
                 else:
                     break
 
@@ -398,6 +446,15 @@ def check_type(a):
     except:
         return None
     return a
+
+
+def matrix_diff(m1, m2):
+    new_m = []
+    for i in range(len(m1)):
+        new_m.append([])
+        for j in range(len(m1[0])):
+            new_m[-1].append(m1[i][j] - m2[i][j])
+    return new_m
 
 
 if __name__ == "__main__":

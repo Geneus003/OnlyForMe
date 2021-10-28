@@ -8,6 +8,7 @@ import math
 
 
 def main():
+    # Нахождение ответов разными способами
     def calculate_solutions(matrix, vector_ot, target_value=100):
         reverse_matrix = find_reverse_matrix(matrix)
         reverse_vector_ot = find_reverse_matrix(vector_ot)
@@ -121,7 +122,7 @@ def main():
         print("Вектор переменных")
         print_matrix(solutions, True)
 
-
+# Нахождение числа обусловленности(через обратную матрицу и изменением некоторых параметров)
 def find_coef_ob(matrix, temp_matrix, temp_matrix_reverse, vector_ot, solut, yak=True):
     matrixx, temp_matrixx, temp_matrix_reversee = matrix, temp_matrix, temp_matrix_reverse
     vector = copy.deepcopy(vector_ot)
@@ -156,7 +157,7 @@ def find_coef_ob(matrix, temp_matrix, temp_matrix_reverse, vector_ot, solut, yak
             delt_sol = find_norm(matrix_diff(solut, gau_sol))
         return (delt_sol / find_norm(solut)) / ((delt_izm) / find_norm(vector_ot))
 
-
+# Умножение вектора неизвестных на коэфиценты
 def solve_eq(matrix, resh):
     new_matrix = []
     for i, e in enumerate(matrix):
@@ -165,7 +166,7 @@ def solve_eq(matrix, resh):
             new_matrix[i].append(ee*resh[j][0])
     return new_matrix
 
-
+# Метод Якоби
 def yakobi(matrix, vector_ot, iter_count=300):
     vector_sol = [0 for i in range(len(matrix))]
     for k in range(iter_count):
@@ -191,7 +192,7 @@ def yakobi(matrix, vector_ot, iter_count=300):
 
     return vector_sol
 
-
+# Метод Гаусса Жордана
 def gaus_jourdan(matrixs, vector_ot):
     matrix = copy.deepcopy(matrixs)
     for i in range(len(matrix)):
@@ -219,7 +220,7 @@ def gaus_jourdan(matrixs, vector_ot):
 
     return matrix
 
-
+# Перевод из float в увеличенный fraction
 def convert_matrix_to_fraction(matrixs):
     matrix = copy.deepcopy(matrixs)
     for i in range(len(matrix)):
@@ -230,7 +231,7 @@ def convert_matrix_to_fraction(matrixs):
             matrix[i] = fractions.Fraction(matrix[i])
     return matrix
 
-
+# Перевод из fraction в увеличенный float
 def convert_matrix_to_float(matrixs):
 
     def decimal_from_fraction(frac):
@@ -243,6 +244,7 @@ def convert_matrix_to_float(matrixs):
     return matrix
 
 
+# Нахождение обратной матрицы используя метод Гаусса Жордана
 def find_reverse_matrix(matrix):
     matrix_size = len(matrix)
     new_matrix = []
@@ -265,6 +267,7 @@ def find_reverse_matrix(matrix):
     return new_matrix
 
 
+# Вычисление определителя
 def find_det(matrix):
     try:
         if len(matrix) != len(matrix[-1]):
@@ -287,6 +290,7 @@ def find_det(matrix):
         return matrix[0][0]*matrix[1][1] - matrix[0][1]*matrix[1][0]
 
 
+# Нахождение нормы матрицы
 def find_norm(matrix):
     sec_norm = 0
     for i, e in enumerate(matrix):
@@ -295,6 +299,7 @@ def find_norm(matrix):
     return math.sqrt(sec_norm)
 
 
+# Печать матрицы
 def print_matrix(matrix, is_solutions):
     space_between = 12
     for i in matrix:
@@ -314,7 +319,7 @@ def print_matrix(matrix, is_solutions):
     if is_solutions:
         print()
 
-
+# Ввод матрицы
 def read_matrix(size=None):
     def get_matrix_via_input(size=None):
         row, column = 0, 0
@@ -410,6 +415,7 @@ def read_matrix(size=None):
     return temp_matrix
 
 
+# Ввод числа пользователя
 def get_user_number(n):
     while True:
         a = input("Ввод(0-выйти): ")
@@ -425,6 +431,7 @@ def get_user_number(n):
     return a
 
 
+# Проверка вводимого числа
 def check_type(a):
     def is_float(potential_float):
         try:
@@ -448,6 +455,7 @@ def check_type(a):
     return a
 
 
+# Вычитание матриц
 def matrix_diff(m1, m2):
     new_m = []
     for i in range(len(m1)):

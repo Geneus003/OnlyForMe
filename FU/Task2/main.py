@@ -7,9 +7,13 @@ import random
 import math
 
 
+tochno = True
+
+
 def main():
     # Нахождение ответов разными способами
     def calculate_solutions(matrix, vector_ot, target_value=100):
+        global tochno
         reverse_matrix = find_reverse_matrix(matrix)
 
         no_zeros = True
@@ -30,13 +34,16 @@ def main():
 
             coef_obusl = find_coef_ob(matrix, temp_matrix, temp_matrix_reverse, vector_ot, yakobi_solutions)
 
-            if coef_obusl < target_value:
+            if coef_obusl < target_value and tochno:
                 print("Матрица обусловленна хорошо для метода Якоби:", coef_obusl)
                 return yakobi_solutions, reverse_matrix
             else:
                 print("Матрица обусловлена плохо для метода Якоби:", coef_obusl)
                 print("Решения для метода Якоби")
                 print_matrix(yakobi_solutions, True)
+                if not tochno:
+                    print("Итераций для нахождения ответа в точности 0.001 не хватило, поэтому используем метод Гаусса")
+                tochno = True
 
             print()
         else:
@@ -172,6 +179,8 @@ def solve_eq(matrix, resh):
 # Метод Якоби
 def yakobi(matrix, vector_ot, iter_count=300):
     vector_sol = [0 for i in range(len(matrix))]
+    global tochno
+    tochno = True
     for k in range(iter_count):
         vector_sol_n = [0 for i in range(len(matrix))]
         for i in range(len(matrix)):
@@ -189,6 +198,9 @@ def yakobi(matrix, vector_ot, iter_count=300):
             vector_sol = vector_sol_n
             break
         vector_sol = vector_sol_n
+    else:
+        print("ВНИМАНИЕ Слишком мало итераций для получения точного ответа(300)")
+        tochno = False
 
     for i in range(len(vector_sol)):
         vector_sol[i] = [vector_sol[i]]

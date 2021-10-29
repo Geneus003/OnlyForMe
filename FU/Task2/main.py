@@ -11,34 +11,38 @@ def main():
     # Нахождение ответов разными способами
     def calculate_solutions(matrix, vector_ot, target_value=100):
         reverse_matrix = find_reverse_matrix(matrix)
-        reverse_vector_ot = find_reverse_matrix(vector_ot)
 
-        yakobi_solutions = yakobi(matrix, vector_ot)
-        yakobi_solutions_rev = yakobi(reverse_matrix, vector_ot)
+        no_zeros = True
 
-        temp_matrix = solve_eq(matrix, yakobi_solutions)
-        if find_det(temp_matrix) != 0:
-            temp_matrix_reverse = find_reverse_matrix(temp_matrix)
+        for i in matrix:
+            for j in i:
+                if j == 0:
+                    no_zeros = False
+
+        if no_zeros:
+            yakobi_solutions = yakobi(matrix, vector_ot)
+
+            temp_matrix = solve_eq(matrix, yakobi_solutions)
+            if find_det(temp_matrix) != 0:
+                temp_matrix_reverse = find_reverse_matrix(temp_matrix)
+            else:
+                temp_matrix_reverse = None
+
+            coef_obusl = find_coef_ob(matrix, temp_matrix, temp_matrix_reverse, vector_ot, yakobi_solutions)
+
+            if coef_obusl < target_value:
+                print("Матрица обусловленна хорошо для метода Якоби:", coef_obusl)
+                return yakobi_solutions, reverse_matrix
+            else:
+                print("Матрица обусловлена плохо для метода Якоби:", coef_obusl)
+                print("Решения для метода Якоби")
+                print_matrix(yakobi_solutions, True)
+
+            print()
         else:
-            temp_matrix_reverse = None
-
-        # print_matrix(temp_matrix_reverse, False)
-
-        # coef_obusl = find_norm(temp_matrix) * find_norm(temp_matrix_reverse)
-        coef_obusl = find_coef_ob(matrix, temp_matrix, temp_matrix_reverse, vector_ot, yakobi_solutions)
-
-        if coef_obusl < target_value:
-            print("Матрица обусловленна хорошо для метода Якоби:", coef_obusl)
-            return yakobi_solutions, reverse_matrix
-        else:
-            print("Матрица обусловлена плохо для метода Якоби:", coef_obusl)
-            print("Решения для метода Якоби")
-            print_matrix(yakobi_solutions, True)
-
-        print()
+            print("На главной диагонали найдены 0, решение методом Якоби невозможно")
 
         gaus_solution_first = gaus_jourdan(matrix, vector_ot)
-        gaus_solution_first_reverse = gaus_jourdan(reverse_matrix, vector_ot)
 
         new_gaus_solutions_first = []
         for i in range(len(gaus_solution_first)):
@@ -55,7 +59,6 @@ def main():
         else:
             temp_matrix_reverse = None
 
-        # coef_obusl = find_norm(temp_matrix) * find_norm(temp_matrix_reverse)
         coef_obusl = find_coef_ob(matrix, temp_matrix, temp_matrix_reverse, vector_ot, gaus_solution_first, yak=False)
 
         if coef_obusl < target_value:
@@ -301,7 +304,7 @@ def find_norm(matrix):
 
 # Печать матрицы
 def print_matrix(matrix, is_solutions):
-    space_between = 12
+    space_between = 16
     for i in matrix:
         for j in i:
             if space_between < len(str(j)):
@@ -333,7 +336,7 @@ def read_matrix(size=None):
         while not size:
             try:
                 row = int(input("Введите кол-во строк ").strip())
-                column = int(input("Введите кол-во столбцов ").strip())
+                column = row
             except ValueError:
                 print("Введены не числа, попробуйте снова")
             else:
